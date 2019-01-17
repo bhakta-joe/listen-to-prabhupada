@@ -111,7 +111,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             backgroundTask: backgroundTask,
             resumeOnClick: true,
             androidNotificationChannelName: 'Listen To Prabhupada',
-            androidNotificationIcon: 'mipmap/ic_launcher',
+            androidNotificationIcon: 'mipmap/ic_launcher'
           );
         },
       );
