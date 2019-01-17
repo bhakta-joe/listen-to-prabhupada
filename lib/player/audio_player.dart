@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'dart:async';
@@ -19,30 +21,29 @@ MediaControl stopControl = MediaControl(
 );
 
 class CustomAudioPlayer {
-  static const streamUri =
-      'http://s3.amazonaws.com/scifri-episodes/scifri20181123-episode.mp3';
+  var _queue = Queue<MediaItem>();
   AudioPlayer _audioPlayer = new AudioPlayer();
   Completer _completer = Completer();
   bool _playing = true;
+  MediaItem _mediaItem;
 
   Future<void> run() async {
-    MediaItem mediaItem = MediaItem(
-        id: 'audio_1',
-        album: 'Sample Album',
-        title: 'Sample Title',
-        artist: 'Sample Artist',
-        artUri: 'https://24hourkirtan.fm/wp-content/uploads/2015/02/srila-prabhupada-e1423317264773.jpg');
-
-    AudioServiceBackground.setMediaItem(mediaItem);
-
     var playerStateSubscription = _audioPlayer.onPlayerStateChanged
         .where((state) => state == AudioPlayerState.COMPLETED)
         .listen((state) {
-      stop();
+      if (_queue.isEmpty) { 
+        stop(); 
+      } else {
+        play();
+      }
     });
     play();
     await _completer.future;
     playerStateSubscription.cancel();
+  }
+
+  void add(MediaItem item) {
+    _queue.add(item);
   }
 
   void playPause() {
@@ -53,7 +54,19 @@ class CustomAudioPlayer {
   }
 
   void play() {
-    _audioPlayer.play(streamUri);
+    _mediaItem = _queue.removeFirst();
+    AudioServiceBackground.setMediaItem(_mediaItem);
+    print(_mediaItem.id);
+
+    const urls = {
+      'audio_1': 'https://upload.wikimedia.org/wikipedia/commons/3/3e/De-Aberratio.ogg',
+      'audio_2': 'https://upload.wikimedia.org/wikipedia/commons/d/db/De-Galaxie.ogg',
+      'audio_3': 'https://upload.wikimedia.org/wikipedia/commons/c/ca/De-Jupiter.ogg',
+    };
+    var url = urls[_mediaItem.id];
+    print(url);
+
+    _audioPlayer.play(url);
     AudioServiceBackground.setState(
       controls: [pauseControl, stopControl],
       basicState: BasicPlaybackState.playing,

@@ -73,9 +73,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: _state?.basicState == BasicPlaybackState.playing
-                ? [pauseButton(), stopButton()]
+                ? [addButton(), pauseButton(), stopButton()]
                 : _state?.basicState == BasicPlaybackState.paused
-                    ? [playButton(), stopButton()]
+                    ? [addButton(), playButton(), stopButton()]
                     : [audioPlayerButton()],
           ),
         ),
@@ -99,6 +99,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         },
       );
 
+  IconButton addButton() => IconButton(
+        icon: Icon(Icons.add_to_queue),
+        iconSize: 64.0,
+        onPressed: () {
+          MediaItem item = MediaItem(
+            id: 'audio_1',
+            album: 'Sample Album',
+            title: 'Sample Title',
+            artist: 'Sample Artist');
+          AudioService.addQueueItem(item);
+        }
+      );
+
   IconButton playButton() => IconButton(
         icon: Icon(Icons.play_arrow),
         iconSize: 64.0,
@@ -119,10 +132,23 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 }
 
 void _backgroundAudioPlayerTask() async {
+  // todo: check queue is not empty
+  // todo: if queue is empty do not start service
   CustomAudioPlayer player = CustomAudioPlayer();
+  
+  for (int i = 1; i <= 3; i++) {
+    player.add(MediaItem(
+            id: 'audio_' + i.toString(),
+            album: 'Bhagavad-gita',
+            title: 'BG 01.01',
+            artist: 'A. C. Bhaktivedanta Swami Prabhupada',
+            artUri: 'https://24hourkirtan.fm/wp-content/uploads/2015/02/srila-prabhupada-e1423317264773.jpg'));
+  }
+
   AudioServiceBackground.run(
     onStart: player.run,
     onPlay: player.play,
+    onAddQueueItem: player.add,
     onPause: player.pause,
     onStop: player.stop,
     onClick: (MediaButton button) => player.playPause(),
