@@ -1,2 +1,2 @@
-# listen-to-prabhupada
-Hear His Divine Grace A.C.Bhaktivedanta Swami Prabhupada everywhere.
+# Listen to Srila Prabhupada
+Listen to A. C. Bhaktivedānta Svāmī Prabhupāda everywhere.
